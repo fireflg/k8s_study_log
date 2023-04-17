@@ -151,13 +151,12 @@ kubectl get namespace
 Namespaces
 Создадим 2 namespace.
 Открываем vscode и создаем yaml file.
----
+
 apiVersion: v1
 kind: Namespace
 metadata:
   name:  monitoring
 
----
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -180,7 +179,7 @@ PriorityClass — это объект кластера, не привязыва�
 Подробнее https://ealebed.github.io/posts/2019/%D0%BF%D1%80%D0%B8%D0%BE%D1%80%D0%B8%D1%82%D0%B5%D1%82%D0%BD%D0%BE%D1%81%D1%82%D1%8C-%D0%BF%D0%BE%D0%B4%D0%BE%D0%B2-%D0%B2-kubernetes/
 ![image](https://user-images.githubusercontent.com/96112649/232606200-0b543a68-f246-4881-8dcf-e4dc83618eda.png)
 
----
+
 apiVersion: scheduling.k8s.io/v1
 kind: PriorityClass
 metadata:
@@ -188,7 +187,7 @@ metadata:
 value: 2000000
 globalDefault: false
 description: "System components. Like a pv, controllers, docker registry etc"
----
+
 apiVersion: scheduling.k8s.io/v1
 kind: PriorityClass
 metadata:
@@ -196,7 +195,7 @@ metadata:
 value: 1005000
 globalDefault: false
 description: "Application productive contour"
----
+
 apiVersion: scheduling.k8s.io/v1
 kind: PriorityClass
 metadata:
@@ -230,7 +229,7 @@ https://github.com/stakater/Reloader
 Идем по пути https://raw.githubusercontent.com/stakater/Reloader/master/deployments/kubernetes/reloader.yaml
 И копируем содержимое в файл yaml.
 Идем по порядку.
----
+
 # Source: reloader/templates/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
@@ -304,7 +303,7 @@ rules:
 ClusterRole – это тот же объект что и Role только применяется ко всему кластеру.
 А Role – это некий набор прав на объекты кластера Kubernetes. Role ничего и никому не разрешает. Это просто список.
 То есть мы указываем,что есть такая роль и что она может.
----
+
 # Source: reloader/templates/clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 
@@ -336,9 +335,8 @@ subjects — кому будут разрешены эти права (или н
 Deployment -  это абстракция Kubernetes, которая позволяют нам управлять тем, что всегда присутствует в жизненном цикле приложения. Речь идёт об управлении изменениями приложений. Приложения, которые не изменяются, это, так сказать, «мёртвые» приложения. Если же приложение «живёт», то можно столкнуться с тем, что периодически изменяются требования к нему, расширяется его код, этот код упаковывается и разворачивается. При этом на каждом шаге данного процесса могут совершаться ошибки.
 
 Ресурс вида Deployment позволяет автоматизировать процесс перехода от одной версии приложения к другой. Это делается без прерывания работы системы, а если в ходе этого процесса произойдёт ошибка, у нас будет возможность быстро вернуться к предыдущей, рабочей версии приложения.
----
-# Source: reloader/templates/deployment.yaml
----
+
+
 # Source: reloader/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
