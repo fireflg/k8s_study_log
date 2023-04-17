@@ -151,17 +151,18 @@ kubectl get namespace
 Namespaces
 Создадим 2 namespace.
 Открываем vscode и создаем yaml file.
-
+``` yaml
 apiVersion: v1
 kind: Namespace
 metadata:
   name:  monitoring
 
+
 apiVersion: v1
 kind: Namespace
 metadata:
   name: logging
-
+```
 apiVersion – версия Kubeapi.
 Kind – сущность
 Metadata – данные, позволяющие идентифицировать объект
@@ -179,7 +180,7 @@ PriorityClass — это объект кластера, не привязыва�
 Подробнее https://ealebed.github.io/posts/2019/%D0%BF%D1%80%D0%B8%D0%BE%D1%80%D0%B8%D1%82%D0%B5%D1%82%D0%BD%D0%BE%D1%81%D1%82%D1%8C-%D0%BF%D0%BE%D0%B4%D0%BE%D0%B2-%D0%B2-kubernetes/
 ![image](https://user-images.githubusercontent.com/96112649/232606200-0b543a68-f246-4881-8dcf-e4dc83618eda.png)
 
-
+``` yaml
 apiVersion: scheduling.k8s.io/v1
 kind: PriorityClass
 metadata:
@@ -203,9 +204,10 @@ metadata:
 value: 1000000
 globalDefault: false
 description: "For any case."
- 
+ ```
 Reloader
 Сначала нужно рассказать что такое config map – config map это сущность, которая позволяет отделить конфигурационные файлы от содержимого образа, чтобы обеспечить отказоустойчивость контейнерных приложений
+``` yaml
 kind: ConfigMap
 apiVersion: v1
 metadata:
@@ -221,6 +223,7 @@ data:
     property.3=value-3
 binaryData:
   bar: L3Jvb3QvMTAw
+  ```
 Где:
 data — содержит данные конфигурациии.
 bar — указывает на файл, содержащий данные, отличные от UTF8, например двоичный файл хранилища ключей Java. Данные файла добавляются в формате Base 64.
@@ -229,7 +232,7 @@ https://github.com/stakater/Reloader
 Идем по пути https://raw.githubusercontent.com/stakater/Reloader/master/deployments/kubernetes/reloader.yaml
 И копируем содержимое в файл yaml.
 Идем по порядку.
-
+``` yaml
 # Source: reloader/templates/serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
@@ -245,11 +248,12 @@ metadata:
     app.kubernetes.io/managed-by: "Helm"
   name: reloader-reloader
   namespace: monitoring
+  ```
 Добавляем сущность ServiceAccount.
 Service Account (учетная запись службы) — это учетная запись, которая позволяет компоненту приложения напрямую обращаться к API без предоставления учетных данных пользователя.
 Тут нужно обратить внимание на namespace, не будем создавать отдельный namespace под reloader, закинем его в мониторинг.
+``` yaml
 apiVersion: rbac.authorization.k8s.io/v1
-
 kind: ClusterRole
 metadata:
   annotations:
@@ -300,10 +304,11 @@ rules:
     verbs:
       - create
       - patch
+```
 ClusterRole – это тот же объект что и Role только применяется ко всему кластеру.
 А Role – это некий набор прав на объекты кластера Kubernetes. Role ничего и никому не разрешает. Это просто список.
 То есть мы указываем,что есть такая роль и что она может.
-
+``` yaml
 # Source: reloader/templates/clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 
@@ -327,7 +332,7 @@ subjects:
   - kind: ServiceAccount
     name: reloader-reloader
     namespace: monitoring
-
+```
 По аналогии с ClusterRole есть ClusterRoleBinding. Он как раз и занимается назначенем роли
 В roleRef указываем права из какой роли будут разрешены.
 subjects — кому будут разрешены эти права (или назначена эта роль).
@@ -336,7 +341,7 @@ Deployment -  это абстракция Kubernetes, которая позво�
 
 Ресурс вида Deployment позволяет автоматизировать процесс перехода от одной версии приложения к другой. Это делается без прерывания работы системы, а если в ходе этого процесса произойдёт ошибка, у нас будет возможность быстро вернуться к предыдущей, рабочей версии приложения.
 
-
+``` yaml
 # Source: reloader/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -414,6 +419,7 @@ spec:
         runAsNonRoot: true
         runAsUser: 65534
       serviceAccountName: reloader-reloader
+ ```
  Что пока что для меня важно это поле spec
 Spec – это требуемое состояние объекта.
 replicas: 1 – значит, что будет 1 под
@@ -425,6 +431,7 @@ matchLabels  - это словарь пары ключ-значение
 imagePullPolicy: IfNotPresent
 Говорит о том, что если образ будет пулиться с удаленного ресурса, только в том случае, если он не будет обнаружен локально.
 Так же я добавил ограничение использования ресурсов, в поле spec->resources->limits
+        ``` yaml
         resources:
           limits:
             cpu: "100m"
@@ -432,7 +439,7 @@ imagePullPolicy: IfNotPresent
           requests:
             cpu: "10m"
             memory: "128Mi"
- 
+      ```
  ![image](https://user-images.githubusercontent.com/96112649/232606329-ea690339-9110-4ac0-9b3f-f0e972d34764.png)
 ![image](https://user-images.githubusercontent.com/96112649/232606343-f16c7896-33a8-4180-b22a-cb487ef6121e.png)
 
